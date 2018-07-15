@@ -1,0 +1,4 @@
+CXX_STD = CXX14
+# CXX=clang++
+
+PKG_CXXFLAGS = -I../inst/include/

@@ -5,22 +5,3 @@
 
 using namespace Rcpp;
 
-// testGeometry
-void testGeometry();
-RcppExport SEXP _mapboxGeometry_testGeometry() {
-BEGIN_RCPP
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    testGeometry();
-    return R_NilValue;
-END_RCPP
-}
-
-static const R_CallMethodDef CallEntries[] = {
-    {"_mapboxGeometry_testGeometry", (DL_FUNC) &_mapboxGeometry_testGeometry, 0},
-    {NULL, NULL, 0}
-};
-
-RcppExport void R_init_mapboxGeometry(DllInfo *dll) {
-    R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
-    R_useDynamicSymbols(dll, FALSE);
-}
