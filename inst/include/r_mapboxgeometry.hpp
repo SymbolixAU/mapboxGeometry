@@ -10,6 +10,7 @@
 // http://gallery.rcpp.org/articles/custom-as-and-wrap-example/
 
 // TODO(define a mapbox::variant of all the mapbox types?)
+// TODO( handle ZM attributes )
 
 namespace Rcpp {
 
