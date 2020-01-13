@@ -14,3 +14,4 @@ LinkingTo:
   mapboxVariant,
   Rcpp
 RoxygenNote: 6.1.1
+SystemRequirements: C++14
