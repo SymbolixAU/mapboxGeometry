@@ -33,9 +33,37 @@ using value_base = mapbox::util::variant<null_value_t, bool, uint64_t, int64_t, 
                                          mapbox::util::recursive_wrapper<std::vector<value>>,
                                          mapbox::util::recursive_wrapper<std::unordered_map<std::string, value>>>;
 
-struct value : value_base
+struct value : public value_base
 {
-    using value_base::value_base;
+    using array_type = std::vector<value>;
+    using object_type = std::unordered_map<std::string, value>;
+
+    value() : value_base(null_value) {}
+    value(null_value_t) : value_base(null_value) {}
+    value(bool v) : value_base(v) {}
+    value(const char* c) : value_base(std::string(c)) {}
+    value(std::string str) : value_base(std::move(str)) {}
+
+    template <typename T, typename std::enable_if_t<std::is_integral<T>::value, int> = 0,
+              typename std::enable_if_t<std::is_signed<T>::value, int> = 0>
+    value(T t) : value_base(int64_t(t))
+    {
+    }
+
+    template <typename T, typename std::enable_if_t<std::is_integral<T>::value, int> = 0,
+              typename std::enable_if_t<!std::is_signed<T>::value, int> = 0>
+    value(T t) : value_base(uint64_t(t))
+    {
+    }
+
+    template <typename T, typename std::enable_if_t<std::is_floating_point<T>::value, int> = 0>
+    value(T t) : value_base(double(t))
+    {
+    }
+    value(array_type array) : value_base(std::move(array)) {}
+    value(object_type object) : value_base(std::move(object)) {}
+
+    explicit operator bool() const { return !is<null_value_t>(); }
 };
 
 using property_map = std::unordered_map<std::string, value>;
@@ -52,39 +80,79 @@ struct feature
     geometry_type geometry;
     property_map properties;
     identifier id;
+    std::string source;
+    std::string sourceLayer;
+    property_map state;
 
     feature()
         : geometry(),
           properties(),
-          id() {}
+          id(),
+          source(),
+          sourceLayer(),
+          state() {}
     feature(geometry_type const& geom_)
         : geometry(geom_),
           properties(),
-          id() {}
+          id(),
+          source(),
+          sourceLayer(),
+          state() {}
     feature(geometry_type&& geom_)
         : geometry(std::move(geom_)),
           properties(),
-          id() {}
+          id(),
+          source(),
+          sourceLayer(),
+          state() {}
     feature(geometry_type const& geom_, property_map const& prop_)
-        : geometry(geom_), properties(prop_), id() {}
+        : geometry(geom_),
+          properties(prop_),
+          id(),
+          source(),
+          sourceLayer(),
+          state() {}
     feature(geometry_type&& geom_, property_map&& prop_)
         : geometry(std::move(geom_)),
           properties(std::move(prop_)),
-          id() {}
+          id(),
+          source(),
+          sourceLayer(),
+          state() {}
     feature(geometry_type const& geom_, property_map const& prop_, identifier const& id_)
         : geometry(geom_),
           properties(prop_),
-          id(id_) {}
+          id(id_),
+          source(),
+          sourceLayer(),
+          state() {}
     feature(geometry_type&& geom_, property_map&& prop_, identifier&& id_)
         : geometry(std::move(geom_)),
           properties(std::move(prop_)),
-          id(std::move(id_)) {}
+          id(std::move(id_)),
+          source(),
+          sourceLayer(),
+          state() {}
+    feature(geometry_type const& geom_, property_map const& prop_, identifier const& id_, std::string const& source_, std::string const& sourceLayer_, property_map const& state_)
+        : geometry(geom_),
+          properties(prop_),
+          id(id_),
+          source(source_),
+          sourceLayer(sourceLayer_),
+          state(state_) {}
+    feature(geometry_type&& geom_, property_map&& prop_, identifier&& id_, std::string&& source_, std::string&& sourceLayer_, property_map&& state_)
+        : geometry(std::move(geom_)),
+          properties(std::move(prop_)),
+          id(std::move(id_)),
+          source(std::move(source_)),
+          sourceLayer(std::move(sourceLayer_)),
+          state(std::move(state_)) {}
 };
 
 template <class T>
 constexpr bool operator==(feature<T> const& lhs, feature<T> const& rhs)
 {
-    return lhs.id == rhs.id && lhs.geometry == rhs.geometry && lhs.properties == rhs.properties;
+    return lhs.id == rhs.id && lhs.geometry == rhs.geometry && lhs.properties == rhs.properties && lhs.source == rhs.source && lhs.sourceLayer == rhs.sourceLayer && lhs.state == rhs.state;
 }
 
 template <class T>
