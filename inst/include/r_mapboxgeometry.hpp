@@ -14,9 +14,7 @@
 
 namespace Rcpp {
 
-	// template <typename T > mapbox::geometry::line_string<T> as( SEXP obj );
-	
-	template <typename T> SEXP wrap(const mapbox::geometry::point<T>& obj);
+  template <typename T> SEXP wrap(const mapbox::geometry::point<T>& obj);
   template <typename T> SEXP wrap(const mapbox::geometry::multi_point<T>& obj);
   template <typename T> SEXP wrap(const mapbox::geometry::line_string<T>& obj);
   template <typename T> SEXP wrap(const mapbox::geometry::multi_line_string<T>& obj);
