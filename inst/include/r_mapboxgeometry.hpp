@@ -3,26 +3,26 @@
 #define R_MAPBOXGEOMETRY_H
 
 #include <RcppCommon.h>
+
 #include <mapbox/geometry.hpp>
 #include <mapbox/variant.hpp>
 
 // http://gallery.rcpp.org/articles/custom-templated-wrap-and-as-for-seamingless-interfaces/
 // http://gallery.rcpp.org/articles/custom-as-and-wrap-example/
 
-// TODO(define a mapbox::variant of all the mapbox types?)
 // TODO( handle ZM attributes )
 
 namespace Rcpp {
 
-template <typename T> SEXP wrap(const mapbox::geometry::point<T>& );
-template <typename T> SEXP wrap(const mapbox::geometry::multi_point<T> &obj);
-template <typename T> SEXP wrap(const mapbox::geometry::line_string<T>& obj);
-template <typename T> SEXP wrap(const mapbox::geometry::multi_line_string<T>& obj);
-template <typename T> SEXP wrap(const mapbox::geometry::linear_ring<T>& obj);
-template <typename T> SEXP wrap(const mapbox::geometry::polygon<T>& obj);
-template <typename T> SEXP wrap(const mapbox::geometry::multi_polygon<T>& obj);
-
-}
+	template <typename T> SEXP wrap(const mapbox::geometry::point<T>& obj);
+	template <typename T> SEXP wrap(const mapbox::geometry::multi_point<T>& obj);
+	template <typename T> SEXP wrap(const mapbox::geometry::line_string<T>& obj);
+	template <typename T> SEXP wrap(const mapbox::geometry::multi_line_string<T>& obj);
+	template <typename T> SEXP wrap(const mapbox::geometry::linear_ring<T>& obj);
+	template <typename T> SEXP wrap(const mapbox::geometry::polygon<T>& obj);
+	template <typename T> SEXP wrap(const mapbox::geometry::multi_polygon<T>& obj);
+	
+} // Rcpp
 
 #include <Rcpp.h>
 
@@ -30,100 +30,105 @@ namespace Rcpp {
 
 template <typename T>
 SEXP wrap(const mapbox::geometry::point<T> &obj) {
-	
-	Rcpp::NumericVector nv(2);
-	nv[0] = obj.x;
-	nv[1] = obj.y;
-	return nv;
+	const int RTYPE = Rcpp::traits::r_sexptype_traits<T>::rtype;
+	return Rcpp::Vector< RTYPE >({ obj.x, obj.y });
 };
 
 template <typename T>
 SEXP wrap(const mapbox::geometry::multi_point<T> &obj) {
+	const int RTYPE = Rcpp::traits::r_sexptype_traits<T>::rtype;
+
+	// a MULTIPOINT is a vector of POINT objects.
 	
-	std::vector< mapbox::geometry::point<T> > vec( obj.begin(), obj.end() );
-	size_t n = obj.size();
-	Rcpp::NumericMatrix nm(n,  2);
+	//std::vector< mapbox::geometry::point<T> > vec( obj.begin(), obj.end() );
 	
-	for (int i = 0; i < n; i++ ) {
-		nm(i, 0) = vec[i].x;
-		nm(i, 1) = vec[i].y;
+	R_xlen_t n = obj.size();
+	Rcpp::Matrix< RTYPE > m(n, 2);
+	
+	R_xlen_t i = 0;
+	for( mapbox::geometry::point<T> pt : obj ) {
+		Rcpp::Vector< RTYPE > v = Rcpp::wrap( pt );
+		m( i, Rcpp::_ ) = v;
+		i++;
 	}
-	
-	nm.attr("class") = Rcpp::CharacterVector::create("XY", "MULTIPOINT", "sfg");
-	return nm;
+	return m;
 }
 
 template <typename T>
 SEXP wrap(const mapbox::geometry::line_string<T> &obj) {
+	const int RTYPE = Rcpp::traits::r_sexptype_traits<T>::rtype;
 	
-	std::vector< mapbox::geometry::point<T> > vec(obj.begin(), obj.end());
-	size_t n = obj.size();
-	Rcpp::NumericMatrix nm(n,  2);
+	R_xlen_t n = obj.size();
+	Rcpp::Matrix< RTYPE > m(n, 2);
 	
-	for (int i = 0; i < n; i++ ) {
-		nm(i, 0) = vec[i].x;
-		nm(i, 1) = vec[i].y;
+	R_xlen_t i = 0;
+	for( mapbox::geometry::point<T> pt : obj ) {
+		Rcpp::Vector< RTYPE > v = Rcpp::wrap( pt );
+		m( i, Rcpp::_ ) = v;
+		i++;
 	}
-	nm.attr("class") = Rcpp::CharacterVector::create("XY", "LINESTRING", "sfg");
-	return nm;
+	return m;
 }
 
 template <typename T>
 SEXP wrap(const mapbox::geometry::multi_line_string<T> &obj) {
-	
-	size_t n = obj.size();
+
+	R_xlen_t n = obj.size();
 	Rcpp::List lst(n);
+	R_xlen_t i = 0;
 	
-	for (int i = 0; i < n; i++) {
-		mapbox::geometry::line_string<T> ls(obj[i]);
-		lst[i] = Rcpp::wrap(ls);
+	for( mapbox::geometry::line_string<T> ls : obj ) {
+		lst[i] = Rcpp::wrap( ls );
+		i++;
 	}
-	lst.attr("class") = Rcpp::CharacterVector::create("XY", "MULTILINESTRING", "sfg");
 	return lst;
 }
 
 template <typename T>
 SEXP wrap(const mapbox::geometry::linear_ring<T> &obj) {
+	const int RTYPE = Rcpp::traits::r_sexptype_traits<T>::rtype;
 	
-	size_t n = obj.size();
-	std::vector< mapbox::geometry::point<T> > vec(obj.begin(), obj.end());
+	R_xlen_t n = obj.size();
+	Rcpp::Matrix< RTYPE > m(n, 2);
 	
-	Rcpp::NumericMatrix nm(n,  2);
-	for (int i = 0; i < n; i++ ) {
-		nm(i, 0) = vec[i].x;
-		nm(i, 1) = vec[i].y;
+	R_xlen_t i = 0;
+	for( mapbox::geometry::point<T> pt : obj ) {
+		Rcpp::Vector< RTYPE > v = Rcpp::wrap( pt );
+		m( i, Rcpp::_ ) = v;
+		i++;
 	}
-	return nm;
+	return m;
 }
 
 template <typename T>
 SEXP wrap(const mapbox::geometry::polygon<T> &obj) {
-	
+
 	size_t n = obj.size();
 	Rcpp::List lst(n);
-	
-	for (int i = 0; i < n; i++) {
-		mapbox::geometry::linear_ring<T> ls(obj[i]);
-		lst[i] = Rcpp::wrap(ls);
+	R_xlen_t i = 0;
+
+	for( mapbox::geometry::linear_ring<T> lr : obj ) {
+		lst[i] = Rcpp::wrap( lr );
+		i++;
 	}
-	lst.attr("class") = Rcpp::CharacterVector::create("XY", "POLYGON", "sfg");
 	return lst;
 }
 
 template <typename T>
 SEXP wrap(const mapbox::geometry::multi_polygon<T> &obj) {
-	
+
 	size_t n = obj.size();
 	Rcpp::List lst(n);
-	
-	for (int i = 0; i < n; i++) {
-		mapbox::geometry::polygon<T> pl(obj[i]);
-		lst[i] = Rcpp::wrap(pl);
+	R_xlen_t i = 0;
+
+	for( mapbox::geometry::polygon<T> pl : obj ) {
+		lst[i] = Rcpp::wrap( pl );
+		i++;
 	}
-	lst.attr("class") = Rcpp::CharacterVector::create("XY", "MULTIPOLYGON", "sfg");
 	return lst;
 }
-} // NAMESPACE Rcpp
+
+} // Rcpp
 
 
 #endif
