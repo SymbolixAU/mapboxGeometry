@@ -5,16 +5,6 @@
 
 using namespace Rcpp;
 
-// test
-void test(Rcpp::NumericVector obj);
-RcppExport SEXP _mapboxGeometry_test(SEXP objSEXP) {
-BEGIN_RCPP
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type obj(objSEXP);
-    test(obj);
-    return R_NilValue;
-END_RCPP
-}
 // rcpp_wrap_test
 SEXP rcpp_wrap_test();
 RcppExport SEXP _mapboxGeometry_rcpp_wrap_test() {
@@ -25,10 +15,32 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// rcpp_as_test
+SEXP rcpp_as_test();
+RcppExport SEXP _mapboxGeometry_rcpp_as_test() {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    rcpp_result_gen = Rcpp::wrap(rcpp_as_test());
+    return rcpp_result_gen;
+END_RCPP
+}
+// rcpp_test_performance
+SEXP rcpp_test_performance(Rcpp::NumericMatrix x);
+RcppExport SEXP _mapboxGeometry_rcpp_test_performance(SEXP xSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type x(xSEXP);
+    rcpp_result_gen = Rcpp::wrap(rcpp_test_performance(x));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_mapboxGeometry_test", (DL_FUNC) &_mapboxGeometry_test, 1},
     {"_mapboxGeometry_rcpp_wrap_test", (DL_FUNC) &_mapboxGeometry_rcpp_wrap_test, 0},
+    {"_mapboxGeometry_rcpp_as_test", (DL_FUNC) &_mapboxGeometry_rcpp_as_test, 0},
+    {"_mapboxGeometry_rcpp_test_performance", (DL_FUNC) &_mapboxGeometry_rcpp_test_performance, 1},
     {NULL, NULL, 0}
 };
 
