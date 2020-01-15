@@ -14,6 +14,8 @@
 
 namespace Rcpp {
 
+	// template <typename T > mapbox::geometry::line_string<T> as( SEXP obj );
+	
 	template <typename T> SEXP wrap(const mapbox::geometry::point<T>& obj);
 	template <typename T> SEXP wrap(const mapbox::geometry::multi_point<T>& obj);
 	template <typename T> SEXP wrap(const mapbox::geometry::line_string<T>& obj);
@@ -22,17 +24,33 @@ namespace Rcpp {
 	template <typename T> SEXP wrap(const mapbox::geometry::polygon<T>& obj);
 	template <typename T> SEXP wrap(const mapbox::geometry::multi_polygon<T>& obj);
 	
+	
 } // Rcpp
 
 #include <Rcpp.h>
 
 namespace Rcpp {
 
+// template <typename T>
+// mapbox::geometry::line_string<T> as( SEXP obj ) {
+// 	//const int RTYPE = Rcpp::traits::r_sexptype_traits<T>::rtype;
+// 
+// 	//Rcpp::Vector< RTYPE > v = Rcpp::as< Rcpp::Vector< RTYPE > > ( obj );
+// 
+// 	//mapbox::geometry::point<T> pt({v[0], v[1]});
+// 	//return pt;
+// 	mapbox::geometry::point<T> pt({1,2});
+// 	mapbox::geometry::line_string<T> ls({ pt });
+// 	return ls;
+// }
+
+
 template <typename T>
 SEXP wrap(const mapbox::geometry::point<T> &obj) {
 	const int RTYPE = Rcpp::traits::r_sexptype_traits<T>::rtype;
 	return Rcpp::Vector< RTYPE >({ obj.x, obj.y });
 };
+
 
 template <typename T>
 SEXP wrap(const mapbox::geometry::multi_point<T> &obj) {

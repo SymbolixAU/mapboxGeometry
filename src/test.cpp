@@ -23,6 +23,15 @@ void test( Rcpp::NumericVector obj ) {
 	mapbox::geometry::point< double > pt2;
 	pt2.x = res[0];
 	pt2.y = res[1];
+	
+	Rcpp::NumericVector nv(2);
+	nv[0] = 1;
+	nv[1] = 2;
+	
+	//mapbox::geometry::point< double > pt3 = Rcpp::as< mapbox::geometry::point< double > >( nv );
+	
+	// Rcpp::NumericVector res2 = Rcpp::as< Rcpp::NumericVector >( pt2 );
+	// Rcpp::Rcout << "res2: " << res2 << std::endl;
 
 }
 
