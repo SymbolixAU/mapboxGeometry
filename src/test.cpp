@@ -1,7 +1,7 @@
 
 #include "mapbox/geometry.hpp"
 
-#include "r_mapboxgeometry.hpp"
+#include "mapboxgeometry.hpp"
 #include <Rcpp.h>
 
 // [[Rcpp::depends(mapboxVariant)]]
